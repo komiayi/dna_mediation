@@ -8,8 +8,10 @@ L'étude vise à comprendre les mécanismes biologiques sous-jacents à l'associ
 L'analyse de médiation a été réalisée pour estimer l'effet direct et indirect des traumatismes infantiles (CTQ) sur la réactivité au stress (Cort_AUCi), avec le locus cg27512205 (gène KITLG) comme médiateur principal d'intérêt.
 
 Initialement, le modèle se concentrait uniquement sur le locus cg27512205 comme médiateur simple :
-![Diagramme](/figures/initial_diagram.png)
-***Figure 4.1*** - Diagramme initial d'analyse de médiation simple
+<div align="center">
+  ![Diagramme](/figures/initial_diagram.png)
+  ***Figure 4.1*** - Diagramme initial d'analyse de médiation simple
+</div>
 
 L'approche développée dans cette analyse incorpore le second locus (cg26179948) en raison de sa forte corrélation avec cg27512205 et suspecte l'existence d'une cause commune non mesurée entre les deux médiateurs.
 
