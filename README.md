@@ -11,7 +11,7 @@ Initialement, le modèle se concentrait uniquement sur le locus cg27512205 comme
 <p align="center">
   <img src="/figures/initial_diagram.png" alt="Diagramme initial d'analyse de médiation simple">
   <br>  
-  **Diagramme initial d'analyse de médiation simple.**
+  __Diagramme initial d'analyse de médiation simple.__
 </p>
 L'approche développée dans cette analyse incorpore le second locus (cg26179948) en raison de sa forte corrélation avec cg27512205 et suspecte l'existence d'une cause commune non mesurée entre les deux médiateurs.
 
