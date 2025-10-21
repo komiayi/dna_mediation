@@ -9,9 +9,7 @@ L'analyse de médiation a été réalisée pour estimer l'effet direct et indire
 
 Initialement, le modèle se concentrait uniquement sur le locus cg27512205 comme médiateur simple :
 <p align="center">
-  <h4>Diagramme initial d'analyse de médiation simple</h4>
   <img src="/figures/initial_diagram.png" alt="Diagramme initial d'analyse de médiation simple">
-  <h4>Diagramme initial d'analyse de médiation simple</h4>
   <br>  
   ***Figure 4.1*** - Légende descriptive détaillée.
 </p>
