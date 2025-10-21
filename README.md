@@ -41,10 +41,17 @@ Le modèle final utilisé inclut les deux médiateurs et la flèche pointillée 
 
 ## Résultats et Conclusion
 Les analyses ont confirmé l'existence d'un lien statistique entre les traumatismes infantiles, la méthylation de l'ADN et la réactivité au stress.
-* Effet Direct (Non-Médié)
+* **Effet Direct (non-médié)**
 
 L'étude révèle un **effet direct significatif** de l'exposition traumatique (CTQ) sur la réactivité au stress cortisonique (Cort\_AUCi), quel que soit le modèle ou la méthode utilisée. Cet effet représente la majeure partie de l'association totale entre l'exposition et la réponse.
-* Effet Indirect (Médiation) : l'effet médiateur du gène KITLG (locus cg27512205) n'est pas statistiquement significatif, quelle que soit la méthode utilisée (CC ou CNC).
+
+**Résultat Clé (Méthode CC) :** l'estimation de l'effet direct ($\varsigma$) est de **$-399.2$** (IC 95% : $[-716.1, -127.1]$). Un intervalle de confiance qui exclut zéro indique une forte significativité statistique de l'effet non médié.
+
+* **Effet indirect (médiation par cg27512205)**
+
+L'effet médiateur du locus cg27512205 (**effet indirect** $\delta$) n'est **pas statistiquement significatif** dans cette population, ni avec la méthode CC ni avec la méthode CNC.
+
+* **Résultat Clé (Méthode CC) :** L'estimation de l'effet indirect ($\delta$) est de **$-25.47$** (IC 95% : $[-91.68, 86.58]$). L'intervalle de confiance inclut zéro, indiquant l'absence de preuve de médiation par ce gène spécifique.
 * Conclusion : Les résultats confirment un effet direct robuste et suggèrent que le biais potentiel introduit par un second locus corrélé est négligeable avec cette nouvelle approche.
 
 ## Résultats et Conclusion(Détaillés)
