@@ -28,6 +28,7 @@ Deux méthodes d'estimation ont été utilisées pour gérer cette structure com
 cause commune non mesurée.
 </p>
 Le modèle final utilisé inclut les deux médiateurs et la flèche pointillée bidirectionnelle indiquant la cause commune non mesurée (facteur de confusion) entre eux.
+
 ## Variables Clés
 
 | Variable | Type | Description |
