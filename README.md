@@ -1,9 +1,9 @@
-# dna_mediation
+# Application d'une Méthode d'Analyse de Médiation avec Cause Commune Non Mesurée
 
 
 ## Traumatisme Infantile, Méthylation de l'ADN et Réactivité au Stress
 
-Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une **cause commune non mesurée** (UCC), à un jeu de données réelles explorant la relation entre les **traumatismes infantiles**, la **méthylation de l'ADN** et la **réactivité au stress cortisonique**.
+Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une cause commune non mesurée, à un jeu de données réelles explorant la relation entre les **traumatismes infantiles**, la **méthylation de l'ADN** et la **réactivité au stress cortisonique**.
 
 ### 📄 Document Complet
 
@@ -13,39 +13,23 @@ Pour une lecture détaillée de la méthodologie, des analyses et des discussion
 
 ***
 
-### Contexte Scientifique
+## Contexte Scientifique
 
-L'étude vise à comprendre les mécanismes biologiques sous-jacents à l'association entre les expériences traumatiques vécues pendant l'enfance et la réponse au stress. Elle revisite l'étude de Houtepen et al. (2016) en appliquant une nouvelle approche pour estimer les effets en présence de plusieurs médiateurs corrélés.
+L'étude vise à comprendre les mécanismes biologiques sous-jacents à l'association entre les expériences traumatiques vécues pendant l'enfance et la réponse au stress. Elle revisite l'étude de Houtepen et al.[^1] en appliquant une nouvelle approche pour estimer les effets en présence de plusieurs médiateurs corrélés.
 
-### Enjeu Méthodologique : Médiation Multiple et Confusion
+### Enjeu méthodologique : médiation multiple et confusion
 
-Bien que l'analyse de médiation simple soit bien établie, son extension à la médiation multiple est complexe, notamment lorsque les médiateurs sont **corrélés par des causes communes non mesurées**.
+Bien que l'analyse de médiation simple soit bien établie, son extension à la médiation multiple est complexe, notamment lorsque les médiateurs sont corrélés par des causes communes non mesurées.
 
-Notre approche se concentre sur l'estimation de l'effet à travers un **médiateur cible unique** ($M_1$) en présence d'un **second médiateur corrélé** ($M_2$). Cette situation crée un problème de confusion non mesurée entre le médiateur cible et la réponse, rendant les méthodes d'ajustement standard inapplicables.
+Notre approche se concentre sur l'estimation de l'effet à travers un médiateur cible unique en présence d'un second médiateur corrélé. Cette situation crée un problème de confusion non mesurée entre le médiateur cible et la réponse, rendant les méthodes d'ajustement standard inapplicables.
 
 Pour résoudre ce dilemme, nous avons développé une approche novatrice qui :
 
-1.  **Redéfinit les effets :** L'approche adapte l'hypothèse de composition pour intégrer le deuxième médiateur et redéfinir les effets direct et indirect du médiateur cible.
-2.  **Propose deux méthodes :** Nous proposons la méthode **CC (Corrélation Constante)**, qui simplifie l'identification des effets en supposant une corrélation constante entre les résidus des médiateurs.
-3.  **Surpasse la limitation :** Nous proposons ensuite la méthode **CNC (Corrélation Non Constante)**. Cette méthode paramétrique **évalue l'impact de la violation de l'hypothèse de corrélation constante** en estimant la corrélation entre les médiateurs potentiels à différents niveaux d'exposition.
+1.  Redéfinit les effets : l'approche adapte l'hypothèse de composition pour intégrer le deuxième médiateur et redéfinir les effets direct et indirect du médiateur cible.
+2.  Propose deux méthodes : Nous proposons la méthode CC (Corrélation Constante), qui simplifie l'identification des effets en supposant une corrélation constante entre les résidus des médiateurs.
+3.  Surpasse la limitation : Nous proposons ensuite la méthode CNC (Corrélation Non Constante). Cette méthode paramétrique évalue l'impact de la violation de l'hypothèse de corrélation constante en estimant la corrélation entre les médiateurs potentiels à différents niveaux d'exposition.
 
 ### Méthodologie et Diagrammes Causaux
-
-L'analyse de médiation estime l'effet direct et indirect des traumatismes infantiles (CTQ) sur la réactivité au stress (Cort\_AUCi), avec le locus **cg27512205** (gène KITLG) comme médiateur principal d'intérêt.
-
-#### Diagramme Initial (Figure 4.1)
-
-Le modèle initial de médiation simple.
-
-
-
-
-
-Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une cause commune non mesurée, à un jeu de données réelles explorant la relation entre les traumatismes infantiles, la méthylation de l'ADN et la réactivité au stress cortisonique.
-
-## Contexte Scientifique
-L'étude vise à comprendre les mécanismes biologiques sous-jacents à l'association entre les expériences traumatiques vécues pendant l'enfance (qui augmentent le risque de troubles psychiatriques) et la réponse au stress. Elle revisite l'étude de de Houtepen et al.[^1] en appliquant une nouvelle méthode qui réintègre un médiateur secondaire corrélé (cg26179948) au médiateur ciblé (cg27512205).
-
 ## Méthodologie
 L'analyse de médiation a été réalisée pour estimer l'effet direct et indirect des traumatismes infantiles (CTQ) sur la réactivité au stress (Cort_AUCi), avec le locus cg27512205 (gène KITLG) comme médiateur principal d'intérêt.
 
