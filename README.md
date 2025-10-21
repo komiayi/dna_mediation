@@ -13,11 +13,13 @@ Deux méthodes d'estimation ont été utilisées pour gérer la forte corrélati
   Plus de détails sur l'élaboration et la justification théorique des méthodes CC et CNC sont disponibles dans le Chapitre 2 du document PDF.
 
 ## Variables Clés
- Variable,Type,Description
-Exposition (X),CTQ (Binaire),Traumatismes infantiles (score CTQtotal > 41).
-Réponse (Y),Cort_AUCi (Continue),Réactivité du cortisol au stress (Aire sous la courbe d'augmentation).
-Médiateur ciblé (M1​),cg27512205 (Continue),Méthylation du gène KITLG (transformée en valeurs M).
-Médiateur secondaire (M2​),cg26179948 (Continue),Méthylation du gène JAZF1 (transformée en valeurs M).
-Covariables (C),"âge, sexe (Continu/Binaire)",Variables de contrôle incluses dans tous les modèles.
+
+| Variable | Type | Description |
+| :--- | :--- | :--- |
+| **Exposition (X)** | `CTQ` (Binaire) | [cite_start]Traumatismes infantiles (score CTQtotal > 41)[cite: 55, 56]. |
+| **Réponse (Y)** | `Cort_AUCi` (Continue) | [cite_start]Réactivité du cortisol au stress (Aire sous la courbe d'augmentation)[cite: 10, 38]. |
+| **Médiateur ciblé ($M_1$)** | `cg27512205` (Continue) | [cite_start]Méthylation du gène KITLG (transformée en valeurs M)[cite: 11, 17, 53]. |
+| **Médiateur secondaire ($M_2$)** | `cg26179948` (Continue) | [cite_start]Méthylation du gène JAZF1 (transformée en valeurs M)[cite: 12, 53]. |
+| **Covariables (C)** | `âge`, `sexe` (Continu/Binaire) | [cite_start]Variables de contrôle incluses dans tous les modèles[cite: 33, 96]. |
 
 [^1]: Houtepen, L. C., Vinkers, C. H., Carrillo-Roa, T., Hiemstra, M., Van Lier, P. A., Meeus, W., Branje, S., Heim, C. M., Nemeroff, C. B., Mill, J. et al. (2016). Genome-wide DNA methylation levels and altered cortisol stress reactivity following childhood trauma in humans. Nature communications, 7(1), 10967.
