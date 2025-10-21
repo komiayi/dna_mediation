@@ -1,8 +1,5 @@
 # Application d'une méthode d'analyse de médiation avec cause commune non mesurée
 
-
-## Traumatisme Infantile, Méthylation de l'ADN et Réactivité au Stress
-
 Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une cause commune non mesurée, à un jeu de données réelles explorant la relation entre les **traumatismes infantiles**, la **méthylation de l'ADN** et la **réactivité au stress cortisonique**.
 
 ### 📄 Document Complet
@@ -17,7 +14,7 @@ Pour une lecture détaillée de la méthodologie, des analyses et des discussion
 
 L'étude vise à comprendre les mécanismes biologiques sous-jacents à l'association entre les expériences traumatiques vécues pendant l'enfance et la réponse au stress. Elle revisite l'étude de Houtepen et al.[^1] en appliquant une nouvelle approche pour estimer les effets en présence de plusieurs médiateurs corrélés.
 
-### Enjeu méthodologique : médiation multiple et confusion
+## Enjeu méthodologique : médiation multiple et confusion
 
 Bien que l'analyse de médiation simple soit bien établie, son extension à la médiation multiple est complexe, notamment lorsque les médiateurs sont corrélés par des causes communes non mesurées.
 
@@ -28,8 +25,7 @@ Pour résoudre ce dilemme, nous avons développé une approche novatrice qui :
 1.  Redéfinit les effets : l'approche adapte l'hypothèse de composition pour intégrer le deuxième médiateur et redéfinir les effets direct et indirect du médiateur cible.
 2.  Propose deux méthodes : Nous proposons la méthode CC (Corrélation Constante), qui simplifie l'identification des effets en supposant une corrélation constante entre les résidus des médiateurs.
 3.  Surpasse la limitation : Nous proposons ensuite la méthode CNC (Corrélation Non Constante). Cette méthode paramétrique évalue l'impact de la violation de l'hypothèse de corrélation constante en estimant la corrélation entre les médiateurs potentiels à différents niveaux d'exposition.
-
-### Méthodologie et Diagrammes Causaux
+4.  
 ## Méthodologie
 L'analyse de médiation a été réalisée pour estimer l'effet direct et indirect des traumatismes infantiles (CTQ) sur la réactivité au stress (Cort_AUCi), avec le locus cg27512205 (gène KITLG) comme médiateur principal d'intérêt.
 
