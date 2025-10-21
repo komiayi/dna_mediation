@@ -1,4 +1,46 @@
 # dna_mediation
+
+
+## Traumatisme Infantile, Méthylation de l'ADN et Réactivité au Stress
+
+Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une **cause commune non mesurée** (UCC), à un jeu de données réelles explorant la relation entre les **traumatismes infantiles**, la **méthylation de l'ADN** et la **réactivité au stress cortisonique**.
+
+### 📄 Document Complet
+
+Pour une lecture détaillée de la méthodologie, des analyses et des discussions, veuillez consulter le mémoire original :
+
+[**Lien vers le PDF du Mémoire**](docs/Memoire_final_2025 (1).pdf)
+
+***
+
+### Contexte Scientifique
+
+L'étude vise à comprendre les mécanismes biologiques sous-jacents à l'association entre les expériences traumatiques vécues pendant l'enfance et la réponse au stress. Elle revisite l'étude de Houtepen et al. (2016) en appliquant une nouvelle approche pour estimer les effets en présence de plusieurs médiateurs corrélés.
+
+### Enjeu Méthodologique : Médiation Multiple et Confusion
+
+Bien que l'analyse de médiation simple soit bien établie, son extension à la médiation multiple est complexe, notamment lorsque les médiateurs sont **corrélés par des causes communes non mesurées**.
+
+Notre approche se concentre sur l'estimation de l'effet à travers un **médiateur cible unique** ($M_1$) en présence d'un **second médiateur corrélé** ($M_2$). Cette situation crée un problème de confusion non mesurée entre le médiateur cible et la réponse, rendant les méthodes d'ajustement standard inapplicables.
+
+Pour résoudre ce dilemme, nous avons développé une approche novatrice qui :
+
+1.  **Redéfinit les effets :** L'approche adapte l'hypothèse de composition pour intégrer le deuxième médiateur et redéfinir les effets direct et indirect du médiateur cible.
+2.  **Propose deux méthodes :** Nous proposons la méthode **CC (Corrélation Constante)**, qui simplifie l'identification des effets en supposant une corrélation constante entre les résidus des médiateurs.
+3.  **Surpasse la limitation :** Nous proposons ensuite la méthode **CNC (Corrélation Non Constante)**. Cette méthode paramétrique **évalue l'impact de la violation de l'hypothèse de corrélation constante** en estimant la corrélation entre les médiateurs potentiels à différents niveaux d'exposition.
+
+### Méthodologie et Diagrammes Causaux
+
+L'analyse de médiation estime l'effet direct et indirect des traumatismes infantiles (CTQ) sur la réactivité au stress (Cort\_AUCi), avec le locus **cg27512205** (gène KITLG) comme médiateur principal d'intérêt.
+
+#### Diagramme Initial (Figure 4.1)
+
+Le modèle initial de médiation simple.
+
+
+
+
+
 Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une cause commune non mesurée, à un jeu de données réelles explorant la relation entre les traumatismes infantiles, la méthylation de l'ADN et la réactivité au stress cortisonique.
 
 ## Contexte Scientifique
@@ -45,12 +87,12 @@ Les analyses ont confirmé l'existence d'un lien statistique entre les traumatis
 ### Effet Direct (non-médié)
 
 L'étude révèle un effet direct significatif de l'exposition traumatique (CTQ) sur la réactivité au stress cortisonique (Cort\_AUCi), quel que soit le modèle ou la méthode utilisée. Cet effet représente la majeure partie de l'association totale entre l'exposition et la réponse.
-* Résultat Clé (méthode CC) : l'estimation de l'effet direct ($\varsigma$) est de $-399.2$ (IC 95% : $[-716.1, -127.1]$). Un intervalle de confiance qui exclut zéro indique une forte significativité statistique de l'effet non médié.
+* Résultat clé (méthode CC) : l'estimation de l'effet direct ($\varsigma$) est de $-399.2$ (IC 95% : $[-716.1, -127.1]$). Un intervalle de confiance qui exclut zéro indique une forte significativité statistique de l'effet non médié.
 
 ### Effet indirect (médiation par cg27512205)
 
 L'effet médiateur du locus cg27512205 (effet indirect $\delta$) n'est pas statistiquement significatif dans cette population, ni avec la méthode CC ni avec la méthode CNC.
-* Résultat Clé (méthode CC) :L'estimation de l'effet indirect ($\delta$) est de $-25.47$ (IC 95% : $[-91.68, 86.58]$). L'intervalle de confiance inclut zéro, indiquant l'absence de preuve de médiation par ce gène spécifique.
+* Résultat clé (méthode CC) :L'estimation de l'effet indirect ($\delta$) est de $-25.47$ (IC 95% : $[-91.68, 86.58]$). L'intervalle de confiance inclut zéro, indiquant l'absence de preuve de médiation par ce gène spécifique.
 
 ## Apport Méthodologique
 
