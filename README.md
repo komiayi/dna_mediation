@@ -11,7 +11,7 @@ Initialement, le modèle se concentrait uniquement sur le locus cg27512205 comme
 <p align="center">
   <img src="/figures/initial_diagram.png" alt="Diagramme initial d'analyse de médiation simple">
   <br>  
-  *__Diagramme initial d'analyse de médiation simple.__*
+  Diagramme initial d'analyse de médiation simple.
 </p>
 L'approche développée dans cette analyse incorpore le second locus (cg26179948) en raison de sa forte corrélation avec cg27512205 et suspecte l'existence d'une cause commune non mesurée entre les deux médiateurs.
 
@@ -20,6 +20,13 @@ Deux méthodes d'estimation ont été utilisées pour gérer cette structure com
 * Méthode CNC (Corrélation Non Constante) : tient compte des corrélations non constantes entre les médiateurs, en fonction du niveau d'exposition.
   Plus de détails sur l'élaboration et la justification théorique des méthodes CC et CNC sont disponibles dans le Chapitre 2 du document PDF.
 
+<p align="center">
+  <img src="/figures/causal_diagram.png" alt="Diagramme initial d'analyse de médiation multiple">
+  <br>  
+  Diagramme causal de l’influence des traumatismes infantiles (CTQ) sur la réponse du cortisol
+(Cort_AUCi), via cg27512205 en contrôlant l’âge et le sexe. La flèche pointillée bidirectionnelle indique une
+cause commune non mesurée.
+</p>
 Le modèle final utilisé inclut les deux médiateurs et la flèche pointillée bidirectionnelle indiquant la cause commune non mesurée (facteur de confusion) entre eux.
 ## Variables Clés
 
