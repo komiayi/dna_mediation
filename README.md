@@ -24,7 +24,9 @@ Deux méthodes d'estimation ont été utilisées pour gérer la forte corrélati
 
 ## Résultats et Conclusion
 Les analyses ont confirmé l'existence d'un lien statistique entre les traumatismes infantiles, la méthylation de l'ADN et la réactivité au stress.
-* Effet Direct : L'effet direct (non médié par cg27512205) de l'exposition traumatique (CTQ) sur la réactivité au stress cortisonique est significatif (par ex. méthode CC : $\zeta = -399.2$, 95% $IC=[-716.1,-127.1]$).
+* Effet Direct : l'effet direct (non médié par cg27512205) de l'exposition traumatique (CTQ) sur la réactivité au stress cortisonique est significatif (par ex. méthode CC : $\zeta = -399.2$, 95% $IC=[-716.1,-127.1]$).
+* Effet Indirect (Médiation) : l'effet médiateur du gène KITLG (locus cg27512205) n'est pas statistiquement significatif, quelle que soit la méthode utilisée (CC ou CNC).
+* Conclusion : Les résultats confirment un effet direct robuste et suggèrent que le biais potentiel introduit par un second locus corrélé est négligeable avec cette nouvelle approche
 
 [^1]: Houtepen, L. C., Vinkers, C. H., Carrillo-Roa, T., Hiemstra, M., Van Lier, P. A., Meeus, W., Branje, S., Heim, C. M., Nemeroff, C. B., Mill, J. et al. (2016). Genome-wide DNA methylation levels and altered cortisol stress reactivity following childhood trauma in humans. Nature communications, 7(1), 10967.
 
