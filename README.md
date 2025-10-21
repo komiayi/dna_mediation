@@ -55,11 +55,11 @@ Le modèle final utilisé inclut les deux médiateurs et la flèche pointillée 
 
 | Variable | Type | Description |
 | :--- | :--- | :--- |
-| **Exposition (X)** | `CTQ` (Binaire) | Traumatismes infantiles (score CTQtotal > 41). |
-| **Réponse (Y)** | `Cort_AUCi` (Continue) | Réactivité du cortisol au stress (Aire sous la courbe d'augmentation). |
-| **Médiateur ciblé ($M_1$)** | `cg27512205` (Continue) | Méthylation du gène KITLG (transformée en valeurs M). |
-| **Médiateur secondaire ($M_2$)** | `cg26179948` (Continue) | Méthylation du gène JAZF1 (transformée en valeurs M). |
-| **Covariables (C)** | `âge`, `sexe` (Continu/Binaire) | Variables de contrôle incluses dans tous les modèles. |
+| **Exposition** | `CTQ` (Binaire) | Traumatismes infantiles (score CTQtotal > 41). |
+| **Réponse** | `Cort_AUCi` (Continue) | Réactivité du cortisol au stress (Aire sous la courbe d'augmentation). |
+| **Médiateur ciblé** | `cg27512205` (Continue) | Méthylation du gène KITLG (transformée en valeurs M). |
+| **Médiateur secondaire** | `cg26179948` (Continue) | Méthylation du gène JAZF1 (transformée en valeurs M). |
+| **Covariables** | `âge`, `sexe` (Continu/Binaire) | Variables de contrôle incluses dans tous les modèles. |
 
 ## Résultats
 Les analyses ont confirmé l'existence d'un lien statistique entre les traumatismes infantiles, la méthylation de l'ADN et la réactivité au stress.
