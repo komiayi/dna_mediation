@@ -6,7 +6,7 @@ Ce projet applique une méthode d'analyse de médiation statistique avancée, in
 
 Pour une lecture détaillée de la méthodologie, des analyses et des discussions, veuillez consulter le mémoire original :
 
-[**Lien vers le PDF du Mémoire**](docs/Memoire_final_2025 (1).pdf)
+[**Lien vers le PDF du Mémoire**](/docs)
 
 ***
 
