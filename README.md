@@ -2,7 +2,7 @@
 
 Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une cause commune non mesurée, à un jeu de données réelles explorant la relation entre les **traumatismes infantiles**, la **méthylation de l'ADN** et la **réactivité au stress cortisonique**.
 
-### 📄 Document Complet
+### 📄 [Document Complet](/docs/document_final.pdf)
 
 Pour une lecture détaillée de la méthodologie, des analyses et des discussions, veuillez consulter le mémoire original :
 
