@@ -1,4 +1,4 @@
-# Application d'une Méthode d'Analyse de Médiation avec Cause Commune Non Mesurée
+# Application d'une méthode d'analyse de médiation avec cause commune non mesurée
 
 
 ## Traumatisme Infantile, Méthylation de l'ADN et Réactivité au Stress
