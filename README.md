@@ -23,9 +23,9 @@ Notre approche se concentre sur l'estimation de l'effet à travers un médiateur
 Pour résoudre ce dilemme, nous avons développé une approche novatrice qui :
 
 1.  Redéfinit les effets : l'approche adapte l'hypothèse de composition pour intégrer le deuxième médiateur et redéfinir les effets direct et indirect du médiateur cible.
-2.  Propose deux méthodes : Nous proposons la méthode CC (Corrélation Constante), qui simplifie l'identification des effets en supposant une corrélation constante entre les résidus des médiateurs.
-3.  Surpasse la limitation : Nous proposons ensuite la méthode CNC (Corrélation Non Constante). Cette méthode paramétrique évalue l'impact de la violation de l'hypothèse de corrélation constante en estimant la corrélation entre les médiateurs potentiels à différents niveaux d'exposition.
-4.  
+2.  Propose deux méthodes : nous proposons la méthode CC (Corrélation Constante), qui simplifie l'identification des effets en supposant une corrélation constante entre les résidus des médiateurs.
+3.  Surpasse la limitation : nous proposons ensuite la méthode CNC (Corrélation Non Constante). Cette méthode paramétrique évalue l'impact de la violation de l'hypothèse de corrélation constante en estimant la corrélation entre les médiateurs potentiels à différents niveaux d'exposition.
+    
 ## Méthodologie
 L'analyse de médiation a été réalisée pour estimer l'effet direct et indirect des traumatismes infantiles (CTQ) sur la réactivité au stress (Cort_AUCi), avec le locus cg27512205 (gène KITLG) comme médiateur principal d'intérêt.
 
