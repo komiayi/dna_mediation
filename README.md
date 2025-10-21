@@ -7,11 +7,16 @@ L'étude vise à comprendre les mécanismes biologiques sous-jacents à l'associ
 ## Méthodologie
 L'analyse de médiation a été réalisée pour estimer l'effet direct et indirect des traumatismes infantiles (CTQ) sur la réactivité au stress (Cort_AUCi), avec le locus cg27512205 (gène KITLG) comme médiateur principal d'intérêt.
 
-Deux méthodes d'estimation ont été utilisées pour gérer la forte corrélation entre les deux loci de méthylation (cg27512205 et cg26179948), soupçonnée d'être due à une cause commune non mesurée:
+Initialement, le modèle se concentrait uniquement sur le locus cg27512205 comme médiateur simple :
+
+L'approche développée dans cette analyse incorpore le second locus (cg26179948) en raison de sa forte corrélation avec cg27512205 et suspecte l'existence d'une cause commune non mesurée entre les deux médiateurs.
+
+Deux méthodes d'estimation ont été utilisées pour gérer cette structure complexe :
 * Méthode CC (Corrélation Constante) : suppose une corrélation constante entre les résidus des médiateurs.
 * Méthode CNC (Corrélation Non Constante) : tient compte des corrélations non constantes entre les médiateurs, en fonction du niveau d'exposition.
   Plus de détails sur l'élaboration et la justification théorique des méthodes CC et CNC sont disponibles dans le Chapitre 2 du document PDF.
 
+Le modèle final utilisé inclut les deux médiateurs et la flèche pointillée bidirectionnelle indiquant la cause commune non mesurée (facteur de confusion) entre eux.
 ## Variables Clés
 
 | Variable | Type | Description |
