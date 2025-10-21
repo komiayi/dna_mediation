@@ -52,25 +52,8 @@ L'étude révèle un **effet direct significatif** de l'exposition traumatique (
 L'effet médiateur du locus cg27512205 (**effet indirect** $\delta$) n'est **pas statistiquement significatif** dans cette population, ni avec la méthode CC ni avec la méthode CNC.
 
 * **Résultat Clé (Méthode CC) :** L'estimation de l'effet indirect ($\delta$) est de **$-25.47$** (IC 95% : $[-91.68, 86.58]$). L'intervalle de confiance inclut zéro, indiquant l'absence de preuve de médiation par ce gène spécifique.
-* Conclusion : Les résultats confirment un effet direct robuste et suggèrent que le biais potentiel introduit par un second locus corrélé est négligeable avec cette nouvelle approche.
 
-## Résultats et Conclusion(Détaillés)
-
-Les analyses confirment l'existence d'un lien statistique entre les traumatismes infantiles (CTQ), la méthylation de l'ADN et la réactivité au stress.
-
-#### Effet Direct (Non-Médié)
-
-L'étude révèle un **effet direct significatif** de l'exposition traumatique (CTQ) sur la réactivité au stress cortisonique (Cort\_AUCi), quel que soit le modèle ou la méthode utilisée. Cet effet représente la majeure partie de l'association totale entre l'exposition et la réponse.
-
-* **Résultat Clé (Méthode CC) :** L'estimation de l'effet direct ($\varsigma$) est de **$-399.2$** (IC 95% : $[-716.1, -127.1]$). Un intervalle de confiance qui exclut zéro indique une forte significativité statistique de l'effet non médié.
-
-#### Effet Indirect (Médiation par cg27512205)
-
-L'effet médiateur du locus cg27512205 (**effet indirect** $\delta$) n'est **pas statistiquement significatif** dans cette population, ni avec la méthode CC ni avec la méthode CNC.
-
-* **Résultat Clé (Méthode CC) :** L'estimation de l'effet indirect ($\delta$) est de **$-25.47$** (IC 95% : $[-91.68, 86.58]$). L'intervalle de confiance inclut zéro, indiquant l'absence de preuve de médiation par ce gène spécifique.
-
-#### Apport Méthodologique
+## Apport Méthodologique
 
 Les estimations de l'effet indirect restent relativement stables entre les méthodes CC et CNC, suggérant que, dans ce cas précis, le biais potentiel induit par l'absence de modélisation explicite de la cause commune non mesurée est faible. L'application de la méthode a ainsi permis de confirmer la robustesse de l'effet direct.
 
