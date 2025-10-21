@@ -22,4 +22,9 @@ Deux méthodes d'estimation ont été utilisées pour gérer la forte corrélati
 | **Médiateur secondaire ($M_2$)** | `cg26179948` (Continue) | Méthylation du gène JAZF1 (transformée en valeurs M). |
 | **Covariables (C)** | `âge`, `sexe` (Continu/Binaire) | Variables de contrôle incluses dans tous les modèles. |
 
+## Résultats et Conclusion
+Les analyses ont confirmé l'existence d'un lien statistique entre les traumatismes infantiles, la méthylation de l'ADN et la réactivité au stress.
+* Effet Direct : L'effet direct (non médié par cg27512205) de l'exposition traumatique (CTQ) sur la réactivité au stress cortisonique est significatif (par ex. méthode CC : $\varsigma = -399.2$, 95% $IC=[-716.1,-127.1]$ 1414141414).
+
 [^1]: Houtepen, L. C., Vinkers, C. H., Carrillo-Roa, T., Hiemstra, M., Van Lier, P. A., Meeus, W., Branje, S., Heim, C. M., Nemeroff, C. B., Mill, J. et al. (2016). Genome-wide DNA methylation levels and altered cortisol stress reactivity following childhood trauma in humans. Nature communications, 7(1), 10967.
+
