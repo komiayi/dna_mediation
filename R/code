@@ -1,1 +1,886 @@
+# Mandatory package for multivariate normal distribution
+# This would be listed in the DESCRIPTION file under Imports:
+# Imports: mvtnorm
+# library(mvtnorm) # Should not be in the final package R code
 
+################################################################################
+################################################################################
+#' @title Estimation des effets direct et indirect d'un médiateur
+#'
+#' @description
+#' Cette fonction estime les effets direct et indirect du médiateur d'intérêt
+#' dans un cadre de médiation causale, en tenant compte d'une structure potentiellement
+#' corrélée entre deux médiateurs. Elle utilise des modèles linéaires pour les médiateurs
+#' et la variable de réponse, et gère différentes spécifications de la structure
+#' de corrélation entre les médiateurs.
+#'
+#' @param data Un `data.frame` contenant toutes les variables nécessaires à l'analyse.
+#' @param treat Nom de la variable de traitement (exposition) comme une chaîne de caractères.
+#'   Doit être une variable binaire (0/1).
+#' @param outcome Nom de la variable de réponse comme une chaîne de caractères.
+#' @param mediators Vecteur de noms des variables médiatrices (par exemple, `c("M1", "M2")`).
+#'   Le premier élément est considéré comme le médiateur d'intérêt (`intmed`).
+#' @param intmed_cov Vecteur de noms des covariables à inclure dans le modèle du médiateur
+#'   d'intérêt. Peut être `NULL`.
+#' @param sed_cov Vecteur de noms des covariables à inclure dans le modèle du second médiateur.
+#'   Peut être `NULL`.
+#' @param out_cov Vecteur de noms des covariables à inclure dans le modèle de réponse.
+#'   Peut être `NULL`.
+#' @param inter_treat_cov Logique : Si `TRUE`, des termes d'interaction entre le traitement
+#'   (`treat`) et les covariables (`intmed_cov`, `sed_cov`) sont inclus dans les modèles des médiateurs.
+#'   Par défaut : `FALSE`.
+#' @param inter Logique : Si `TRUE`, des termes d'interaction entre l'exposition (`treat`)
+#'   et les médiateurs (`mediators`) sont inclus dans le modèle de réponse. Par défaut : `FALSE`.
+#' @param formula_outcome_custom Formule personnalisée pour le modèle de réponse, utilisée
+#'   uniquement si `inter = TRUE`. Elle permet de spécifier explicitement les interactions
+#'   entre l'exposition et les médiateurs. Si non spécifiée, une formule par défaut
+#'   incluant `treat`, `mediators`, `out_cov`, et les interactions `treat:M1`, `treat:M2`, `M1:M2`,
+#'   et `treat:M1:M2` est générée.
+#' @param cor_structure Entier : `1` pour une corrélation constante entre les résidus des
+#'   médiateurs (`rho_00 = rho_11`), `3` pour des corrélations distinctes en fonction
+#'   du niveau de traitement (`rho_00` et `rho_11` sont estimées séparément).
+#'   Par défaut : `1`.
+#' @param rho_fixed Numérique : Une valeur de corrélation fixe à imposer entre les médiateurs
+#'   dans le cas `cor_structure = 3` pour un scénario "fixe". Par défaut : `0.5`.
+#' @param use_optim_for_mediators Logique : Si `TRUE`, utilise l'optimisation numérique (via `optim`)
+#'   pour estimer les paramètres des modèles de médiateurs et leurs corrélations.
+#'   Si `FALSE` (par défaut), utilise des expressions analytiques directes via `lm`
+#'   pour ces estimations.
+#'
+#' @return Une liste contenant les éléments suivants :
+#' \describe{
+#'   \item{direct_effects}{Un `data.frame` des estimations des effets directs moyens.}
+#'   \item{indirect_effects}{Un `data.frame` des estimations des effets indirects moyens.}
+#'   \item{coef_mediator1}{Coefficients estimés du modèle du médiateur d'intérêt.}
+#'   \item{coef_mediator2}{Coefficients estimés du modèle du second médiateur.}
+#'   \item{coef_outcome}{Coefficients estimés du modèle de réponse.}
+#'   \item{cor_parameters}{Paramètres de corrélation estimés entre les deux médiateurs (écarts-types des résidus et corrélations).}
+#'   \item{rho01_estimates}{Estimations des corrélations non observées entre les valeurs contrefactuelles
+#'     du médiateur d'intérêt sous exposition $A=0$ et du second médiateur sous exposition $A=1$.}
+#'   \item{rho10_estimates}{Estimations des corrélations non observées entre les valeurs contrefactuelles
+#'     du médiateur d'intérêt sous exposition $A=1$ et du second médiateur sous exposition $A=0$.}
+#'   \item{rho_root_method}{Estimations des corrélations et moyennes/fixes utilisées pour la méthode par racine.}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' # Exemple hypothétique avec des données simulées
+#' set.seed(123)
+#' N <- 100
+#' mydata <- data.frame(
+#'   X = rbinom(N, 1, 0.5), # Traitement binaire
+#'   C1 = rnorm(N),        # Covariable
+#'   C2 = rnorm(N),        # Autre covariable
+#'   M1 = 0.5 * rnorm(N) + 0.3 * rbinom(N, 1, 0.5) + 0.2 * rnorm(N, mean = 2, sd = 0.5),
+#'   M2 = 0.6 * rnorm(N) + 0.4 * rbinom(N, 1, 0.5) + 0.1 * rnorm(N, mean = 1, sd = 0.3)
+#' )
+#' mydata$Y <- 0.5 + 0.2 * mydata$X + 0.4 * mydata$M1 + 0.3 * mydata$M2 +
+#'             0.1 * mydata$X * mydata$M1 + 0.05 * mydata$C1 + rnorm(N, sd = 0.5)
+#'
+#' lm_formula_str <- paste(c('X', 'M1','M2', 'covariate', paste(c('M1','M2'), collapse ="*")), collapse ="+")
+#' lmfor <- as.formula(paste('Y',"~", lm_formula_str))
+#'
+#'
+#' # Exécution avec expressions analytiques (lm) - par défaut
+#' result_lm <- mediate_effects(
+#'   data = mydata,
+#'   treat = "X",
+#'   outcome = "Y",
+#'   mediators = c("M1", "M2"),
+#'   intmed_cov = "C1",
+#'   sed_cov = "C2",
+#'   inter = FALSE,
+#'   cor_structure = 1,
+#'   formula_outcome_custom = lmfor,
+#'   use_optim_for_mediators = FALSE
+#' )
+#' print(result_lm$direct_effects)
+#' print(result_lm$indirect_effects)
+#'
+#' # Exécution avec optimisation numérique (optim) pour les médiateurs
+#' result_optim <- mediate_effects(
+#'   data = mydata,
+#'   treat = "X",
+#'   outcome = "Y",
+#'   mediators = c("M1", "M2"),
+#'   intmed_cov = "C1",
+#'   sed_cov = "C2",
+#'   inter = TRUE,
+#'   cor_structure = 3,
+#'   formula_outcome_custom = lmfor,
+#'   use_optim_for_mediators = TRUE
+#' )
+#' print(result_optim$direct_effects)
+#' print(result_optim$indirect_effects)
+#' }
+#'
+#' @importFrom mvtnorm dmvnorm
+#' @importFrom stats as.formula coef lm model.frame model.matrix model.response optim sd cor
+#' @export
+mediate_effects <- function(data, treat, outcome, mediators, intmed_cov = NULL,
+                            sed_cov = NULL, out_cov = NULL, inter_treat_cov = FALSE,
+                            inter = FALSE, formula_outcome_custom = NULL,
+                            cor_structure = 1, rho_fixed = 0.5,
+                            use_optim_for_mediators = FALSE) {
+  
+  # --- 1. Validation des entrées ---
+  if (!is.data.frame(data)) {
+    stop("Le paramètre 'data' doit être un data.frame.")
+  }
+  required_vars <- c(treat, outcome, mediators, intmed_cov, sed_cov, out_cov)
+  missing_vars <- setdiff(required_vars, names(data))
+  if (length(missing_vars) > 0) {
+    stop(paste("Les variables suivantes sont manquantes dans le jeu de données:",
+               paste(missing_vars, collapse = ", ")))
+  }
+  if (length(mediators) != 2) {
+    stop("Le vecteur 'mediators' doit contenir exactement deux noms de variables.")
+  }
+  if (!is.numeric(data[[treat]]) || !all(unique(data[[treat]]) %in% c(0, 1))) {
+    stop("La variable de traitement 'treat' doit être numérique et binaire (0 ou 1).")
+  }
+  if (!cor_structure %in% c(1, 3)) {
+    stop("Le paramètre 'cor_structure' doit être 1 ou 3.")
+  }
+  if (cor_structure == 3 && (!is.numeric(rho_fixed) || length(rho_fixed) != 1 || rho_fixed < -1 || rho_fixed > 1)) {
+    warning("Le paramètre 'rho_fixed' doit être une valeur numérique entre -1 et 1 pour 'cor_structure = 3'. Utilisation de la valeur par défaut (0.5).")
+    rho_fixed <- 0.5
+  }
+  if (!is.logical(use_optim_for_mediators)) {
+    stop("Le paramètre 'use_optim_for_mediators' doit être TRUE ou FALSE.")
+  }
+  
+  # Définition du médiateur d'intérêt et du second médiateur
+  intmed <- mediators[1]
+  sedmed <- mediators[2]
+  
+  # --- 2. Génération des formules de modèle ---
+  model_formulas <- generate_model_formulas(
+    treat = treat,
+    mediators = mediators,
+    intmed = intmed,
+    sedmed = sedmed,
+    outcome = outcome,
+    intmed_cov = intmed_cov,
+    sed_cov = sed_cov,
+    out_cov = out_cov,
+    inter_treat_cov = inter_treat_cov,
+    inter = inter,
+    formula_outcome_custom = formula_outcome_custom
+  )
+  
+  
+  # --- 3. Estimation des paramètres des modèles ---
+  
+  # Estimation du modèle de la variable de réponse (toujours via lm)
+  fit_outcome <- lm(model_formulas$formula_outcome, data = data)
+  coef_outcome <- coef(fit_outcome)
+  sd_outcome_residuals <- sd(residuals(fit_outcome))
+  
+  # Ajustement des coefficients de l'outcome pour inclure les interactions manquantes
+  if (inter) {
+    default_interaction_names <- c(
+      paste0(treat, ":", mediators[1]),
+      paste0(treat, ":", mediators[2]),
+      paste0(mediators[1], ":", mediators[2]),
+      paste0(treat, ":", mediators[1], ":", mediators[2])
+    )
+    missing_inter_coefs <- setdiff(default_interaction_names, names(coef_outcome))
+    if (length(missing_inter_coefs) > 0) {
+      new_coefs <- setNames(rep(0, length(missing_inter_coefs)), missing_inter_coefs)
+      coef_outcome <- c(coef_outcome, new_coefs)
+    }
+  }
+  coef_outcome <- c(coef_outcome, sd = sd_outcome_residuals)
+  
+  # Estimation des paramètres des modèles de médiateurs et de leurs corrélations
+  if (use_optim_for_mediators) {
+    # Utilisation de optim pour les médiateurs (avec initialisation par lm)
+    initial_lm_m1 <- lm(model_formulas$formula_m1, data = data)
+    initial_lm_m2 <- lm(model_formulas$formula_m2, data = data)
+    
+    # Initialisation des paramètres de corrélation pour optim
+    initial_res_m1 <- residuals(initial_lm_m1)
+    initial_res_m2 <- residuals(initial_lm_m2)
+    
+    initial_sigma1 <- sd(initial_res_m1)
+    initial_sigma2 <- sd(initial_res_m2)
+    initial_rho <- cor(initial_res_m1, initial_res_m2)
+    
+    if (cor_structure == 1) {
+      initial_cor_params <- c(initial_sigma1, initial_sigma2, initial_rho)
+    } else { # cor_structure == 3
+      res_m1_t1 <- initial_res_m1[data[[treat]] == 1]
+      res_m2_t1 <- initial_res_m2[data[[treat]] == 1]
+      res_m1_t0 <- initial_res_m1[data[[treat]] == 0]
+      res_m2_t0 <- initial_res_m2[data[[treat]] == 0]
+      
+      initial_sigma1_t1 <- sd(res_m1_t1)
+      initial_sigma1_t0 <- sd(res_m1_t0)
+      initial_sigma2_t1 <- sd(res_m2_t1)
+      initial_sigma2_t0 <- sd(res_m2_t0)
+      
+      initial_rho_t1 <- cor(res_m1_t1, res_m2_t1)
+      initial_rho_t0 <- cor(res_m1_t0, res_m2_t0)
+      initial_cor_params <- c(initial_sigma1_t1, initial_sigma1_t0,
+                              initial_sigma2_t1, initial_sigma2_t0,
+                              initial_rho_t1, initial_rho_t0)
+    }
+    
+    # Combinaison des paramètres initiaux
+    initial_params_optim <- c(coef(initial_lm_m1), coef(initial_lm_m2), initial_cor_params)
+    
+    # Définition de q1 et q2 pour Loglik.med
+    q1 <- length(coef(initial_lm_m1))
+    q2 <- length(coef(initial_lm_m2))
+    
+    # Appel à la fonction optimisée des paramètres des médiateurs
+    params_mediators_optim <- estimate_mediator_params_optim(
+      par = initial_params_optim,
+      q1 = q1,
+      q2 = q2,
+      treat = treat,
+      mediators = mediators,
+      formula_m1 = model_formulas$formula_m1,
+      formula_m2 = model_formulas$formula_m2,
+      data = data,
+      cor_structure = cor_structure
+    )
+    
+    # Récupérer les noms des coefficients des modèles lm initiaux pour les assigner
+    initial_lm_m1 <- lm(model_formulas$formula_m1, data = data)
+    initial_lm_m2 <- lm(model_formulas$formula_m2, data = data)
+    
+    coef_m1 <- params_mediators_optim$Cint
+    names(coef_m1) <- names(coef(initial_lm_m1)) # <--- AJOUTER CETTE LIGNE
+    
+    coef_m2 <- params_mediators_optim$Csed
+    names(coef_m2) <- names(coef(initial_lm_m2)) # <--- AJOUTER CETTE LIGNE
+    
+    cor_params_est <- params_mediators_optim$Ccor
+    
+  } else {
+    # Utilisation d'expressions analytiques (lm) pour les médiateurs
+    fit_m1 <- lm(model_formulas$formula_m1, data = data)
+    coef_m1 <- coef(fit_m1)
+    residuals_m1 <- residuals(fit_m1)
+    
+    fit_m2 <- lm(model_formulas$formula_m2, data = data)
+    coef_m2 <- coef(fit_m2)
+    residuals_m2 <- residuals(fit_m2)
+    
+    cor_params_est <- estimate_correlation_parameters_analytic(
+      residuals_m1 = residuals_m1,
+      residuals_m2 = residuals_m2,
+      data = data,
+      treat = treat,
+      cor_structure = cor_structure
+    )$cor_coefs
+  }
+  
+  # --- 4. Calcul des corrélations r01 et r10 ---
+  r_estimates <- calculate_r01_r10(
+    cor_params = cor_params_est,
+    cor_structure = cor_structure,
+    rho_fixed = rho_fixed
+  )
+  
+  # --- 5. Préparation des coefficients pour le calcul des effets ---
+  alpha_df_list <- list()
+  alpha_df_list[[mediators[1]]] <- data.frame(
+    name = names(coef_m1),
+    value = as.numeric(coef_m1),
+    row.names = names(coef_m1)
+  )
+  alpha_df_list[[mediators[2]]] <- data.frame(
+    name = names(coef_m2),
+    value = as.numeric(coef_m2),
+    row.names = names(coef_m2)
+  )
+  
+  beta_df <- data.frame(
+    name = names(coef_outcome),
+    value = as.numeric(coef_outcome),
+    row.names = names(coef_outcome)
+  )
+  
+  # --- 6. Calcul des effets directs et indirects ---
+  effects_result <- calculate_conditional_effects(
+    alpha = alpha_df_list,
+    beta = beta_df,
+    treat = treat,
+    mediators = mediators,
+    intmed_cov = intmed_cov,
+    sed_cov = sed_cov,
+    inter = inter,
+    cor_params_vec = cor_params_est, # Passer le vecteur des coefficients de corrélation bruts
+    rho_values = r_estimates$r01, # Passer les r01 calculés
+    data = data,
+    cor_structure = cor_structure
+  )
+  
+  # --- 7. Préparation des noms de colonnes pour les résultats ---
+  if (cor_structure == 3) {
+    #effect_names <- c(paste0("racine", 1:length(r_estimates$r01[!is.na(r_estimates$r01)])), "moyen", "fixe")
+    effect_names <- c(paste0("racine", 1:4), "moyen", "fixe")
+  } else {
+    effect_names <- "Estimation"
+  }
+  
+  DE_results <- as.data.frame(t(effects_result$DE_calculated))
+  colnames(DE_results) <- paste0("DE_", effect_names)
+  
+  IE_results <- as.data.frame(t(effects_result$IE_calculated))
+  colnames(IE_results) <- paste0("IE_", effect_names)
+  
+  # Noms pour les coefficients de corrélation
+  if (cor_structure == 3) {
+    cor_coef_names <- c("sd_M1_T1", "sd_M1_T0", "sd_M2_T1", "sd_M2_T0", "rho_T1", "rho_T0")
+  } else {
+    cor_coef_names <- c("sd_M1", "sd_M2", "rho_M1M2")
+  }
+  names(cor_params_est) <- cor_coef_names
+  
+  # Noms pour rho01 et rho10
+  rho01_names <- paste0("rho01_", effect_names)
+  rho10_names <- paste0("rho10_", effect_names)
+  
+  rho01_df <- as.data.frame(t(r_estimates$r01))
+  colnames(rho01_df) <- rho01_names
+  
+  rho10_df <- as.data.frame(t(r_estimates$r10))
+  colnames(rho10_df) <- rho10_names
+  
+  rho_racine_df <- NULL
+  if (cor_structure == 3) {
+    # Filtrer les NA de rho_root_values avant de nommer pour éviter les colonnes NA
+    #valid_rho_root_values <- r_estimates$rho_root_values[!is.na(r_estimates$rho_root_values)]
+    valid_rho_root_values <- r_estimates$rho_root_values
+    rho_racine_df <- as.data.frame(t(valid_rho_root_values))
+    colnames(rho_racine_df) <- paste0(c(paste0("racine", 1:4),'moyen','fixe'))
+  }
+  
+  return(list(
+    direct_effects = DE_results,
+    indirect_effects = IE_results,
+    coef_mediator1 = as.data.frame(t(coef_m1)),
+    coef_mediator2 = as.data.frame(t(coef_m2)),
+    coef_outcome = as.data.frame(t(coef_outcome)),
+    cor_parameters = as.data.frame(t(cor_params_est)),
+    rho01_estimates = rho01_df,
+    rho10_estimates = rho10_df,
+    rho_root_method = rho_racine_df
+  ))
+}
+
+### Fonctions Aides (Helper Functions)
+
+##Ces fonctions auxiliaires sont utilisées par `mediate_effects`. 
+### Pour un package, elles devraient idéalement être documentées avec roxygen.
+
+#### `generate_model_formulas`
+
+
+#' @title Génère les formules des modèles pour la médiation causale
+#'
+#' @description
+#' Cette fonction construit les formules R pour les modèles des médiateurs et
+#' de la variable de réponse, en tenant compte des covariables et des interactions.
+#'
+#' @param treat Nom de la variable de traitement.
+#' @param mediators Vecteur de noms des variables médiatrices (le premier est le médiateur d'intérêt).
+#' @param intmed Nom du médiateur d'intérêt.
+#' @param sedmed Nom du second médiateur.
+#' @param outcome Nom de la variable de réponse.
+#' @param intmed_cov Vecteur de noms des covariables pour le médiateur d'intérêt.
+#' @param sed_cov Vecteur de noms des covariables pour le second médiateur.
+#' @param out_cov Vecteur de noms des covariables pour la variable de réponse.
+#' @param inter_treat_cov Logique : Si `TRUE`, interaction traitement-covariables dans les modèles des médiateurs.
+#' @param inter Logique : Si `TRUE`, interactions traitement-médiateurs dans le modèle de réponse.
+#' @param formula_outcome_custom Formule personnalisée pour le modèle de réponse.
+#'
+#' @return Une liste contenant les objets `formula` pour `formula_m1`, `formula_m2`, et `formula_outcome`.
+#' @keywords internal
+generate_model_formulas <- function(treat, mediators, intmed, sedmed, outcome,
+                                    intmed_cov, sed_cov, out_cov,
+                                    inter_treat_cov, inter, formula_outcome_custom) {
+  
+  # Formule pour le premier médiateur (intmed)
+  if (is.null(intmed_cov)) {
+    rhs_m1 <- treat
+  } else if (isTRUE(inter_treat_cov)) {
+    rhs_m1 <- paste(treat, paste(intmed_cov, collapse = "*"), sep = "*")
+  } else {
+    rhs_m1 <- paste(c(treat, intmed_cov), collapse = " + ")
+  }
+  formula_m1 <- as.formula(paste(intmed, rhs_m1, sep = " ~ "))
+  
+  # Formule pour le second médiateur (sedmed)
+  if (is.null(sed_cov)) {
+    rhs_m2 <- treat
+  } else if (isTRUE(inter_treat_cov)) {
+    rhs_m2 <- paste(treat, paste(sed_cov, collapse = "*"), sep = "*")
+  } else {
+    rhs_m2 <- paste(c(treat, sed_cov), collapse = " + ")
+  }
+  formula_m2 <- as.formula(paste(sedmed, rhs_m2, sep = " ~ "))
+  
+  # Formule pour la variable de réponse (outcome)
+  if (isTRUE(inter)) {
+    if (is.null(formula_outcome_custom)) {
+      # Génération d'une formule par défaut avec interactions
+      interaction_terms <- c(
+        paste0(treat, ":", mediators[1]),
+        paste0(treat, ":", mediators[2]),
+        paste0(mediators[1], ":", mediators[2]),
+        # Inclure interaction triple si pertinent pour le modèle
+        paste0(treat, ":", mediators[1], ":", mediators[2])
+      )
+      all_rhs_terms <- c(treat, mediators, out_cov, interaction_terms)
+      rhs_outcome <- paste(all_rhs_terms, collapse = " + ")
+      formula_outcome <- as.formula(paste(outcome, rhs_outcome, sep = " ~ "))
+    } else {
+      formula_outcome <- as.formula(paste(outcome, deparse(formula_outcome_custom[[3]]), sep = " ~ "))
+    }
+  } else {
+    all_rhs_terms <- c(treat, mediators, out_cov)
+    rhs_outcome <- paste(all_rhs_terms, collapse = " + ")
+    formula_outcome <- as.formula(paste(outcome, rhs_outcome, sep = " ~ "))
+  }
+  
+  return(list(
+    formula_m1 = formula_m1,
+    formula_m2 = formula_m2,
+    formula_outcome = formula_outcome
+  ))
+}
+
+
+#### `estimate_correlation_parameters`
+
+#Cette fonction estime les variances et covariances/corrélations des résidus des médiateurs.
+
+#' @title Estime les paramètres de corrélation des résidus des médiateurs (méthode analytique)
+#'
+#' @description
+#' Calcule les écarts-types et les corrélations des résidus des modèles de médiateurs
+#' en utilisant des expressions analytiques (basées sur les résidus de `lm`).
+#'
+#' @param residuals_m1 Vecteur des résidus du premier modèle de médiateur.
+#' @param residuals_m2 Vecteur des résidus du second modèle de médiateur.
+#' @param data Le jeu de données original.
+#' @param treat Nom de la variable de traitement.
+#' @param cor_structure Entier : 1 pour corrélation constante, 3 pour corrélations distinctes.
+#'
+#' @return Une liste avec le vecteur `cor_coefs` (paramètres de corrélation).
+#' @importFrom stats sd cor
+#' @keywords internal
+estimate_correlation_parameters_analytic <- function(residuals_m1, residuals_m2, data, treat, cor_structure) {
+  cor_coefs <- NULL
+  
+  if (cor_structure == 1) {
+    # Corrélation constante
+    sigma1 <- sd(residuals_m1)
+    sigma2 <- sd(residuals_m2)
+    rho <- cor(residuals_m1, residuals_m2)
+    cor_coefs <- c(sigma1, sigma2, rho)
+  } else { # cor_structure == 3
+    # Corrélations distinctes par niveau de traitement
+    # S'assurer que les résidus correspondent aux sous-groupes de données
+    res_m1_t1 <- residuals_m1[data[[treat]] == 1]
+    res_m2_t1 <- residuals_m2[data[[treat]] == 1]
+    res_m1_t0 <- residuals_m1[data[[treat]] == 0]
+    res_m2_t0 <- residuals_m2[data[[treat]] == 0]
+    
+    sigma1_t1 <- sd(res_m1_t1)
+    sigma1_t0 <- sd(res_m1_t0)
+    sigma2_t1 <- sd(res_m2_t1)
+    sigma2_t0 <- sd(res_m2_t0)
+    
+    rho_t1 <- cor(res_m1_t1, res_m2_t1)
+    rho_t0 <- cor(res_m1_t0, res_m2_t0)
+    
+    cor_coefs <- c(sigma1_t1, sigma1_t0, sigma2_t1, sigma2_t0, rho_t1, rho_t0)
+  }
+  return(list(cor_coefs = cor_coefs))
+}
+
+
+#### ``Loglik.med`
+
+#' @title Fonction de log-vraisemblance négative pour les modèles de médiateurs
+#'
+#' @description
+#' Calcule la log-vraisemblance négative pour l'estimation des paramètres des
+#' deux modèles de médiateurs, en supposant une distribution normale multivariée
+#' pour les résidus. Utilisée avec `optim`.
+#'
+#' @param par Vecteur des paramètres à optimiser (coefficients de régression et paramètres de corrélation).
+#' @param q1 Nombre de coefficients dans le modèle du premier médiateur.
+#' @param q2 Nombre de coefficients dans le modèle du second médiateur.
+#' @param treat Nom de la variable de traitement.
+#' @param mediators Vecteur de noms des variables médiatrices.
+#' @param formula_m1 Formule du modèle du premier médiateur.
+#' @param formula_m2 Formule du modèle du second médiateur.
+#' @param data Jeu de données.
+#' @param cor_structure Entier : 1 pour corrélation constante, 3 pour corrélation non constante.
+#'
+#' @return La valeur de la log-vraisemblance négative.
+#' @importFrom mvtnorm dmvnorm
+#' @importFrom stats model.matrix
+#' @keywords internal
+Loglik.med <-function(par, q1,q2, treat,mediators, formula_m1,formula_m2, data = NULL, cor_structure= 1){
+  
+  # Extraire la partie droite des formules
+  rhs_m1 <- paste0("~", deparse(formula_m1[[3]]))
+  rhs_m2 <- paste0("~", deparse(formula_m2[[3]]))
+  
+  # Création des matrices de design
+  D11 <- model.matrix(as.formula(rhs_m1), data)
+  D22 <- model.matrix(as.formula(rhs_m2), data)
+  
+  if(cor_structure==1){
+    alpha11 <- par[1:q1]
+    alpha22 <- par[(q1+1):(q1+q2)]
+    sigma_11 <- par[q1+q2+1]
+    sigma_22 <- par[q1+q2+2]
+    Rhoo <- par[q1+q2+3]
+    
+    # Calculs linéaires
+    A11 <- D11 %*% alpha11
+    A22 <- D22 %*% alpha22
+    
+    Sigma <- matrix(c(sigma_11^2, Rhoo*sigma_11*sigma_22, Rhoo*sigma_11*sigma_22, sigma_22^2), 2, 2)
+    # Assurer que Sigma est définie positive
+    if (any(eigen(Sigma)$values <= 0)) {
+      return(1e10) # Retourne une très grande valeur pour pénaliser les matrices non valides
+    }
+    f.med <- dmvnorm(data[,mediators]- cbind(A11,A22), mean = rep(0,nrow(Sigma)) , sigma = Sigma, log = TRUE)
+  }else{
+    alpha11 <- par[1:q1]
+    alpha22 <- par[(q1+1):(q1+q2)]
+    sigma11 <- par[q1+q2+1]
+    sigma10 <- par[q1+q2+2]
+    sigma21 <- par[q1+q2+3]
+    sigma20 <- par[q1+q2+4]
+    Rhoo11 <- par[q1+q2+5]
+    Rhoo00 <- par[q1+q2+6]
+    
+    # Validation des bornes pour les corrélations
+    if (any(abs(c(Rhoo11, Rhoo00)) >= 1)) {
+      return(1e10) # Pénalise les valeurs de corrélation hors bornes
+    }
+    
+    # Calculs linéaires
+    A11 <- D11 %*% alpha11
+    A22 <- D22 %*% alpha22
+    
+    # Calculs pour la log-vraisemblance par observation
+    A42 <- ifelse(data[,treat]==1, sigma11, sigma10)
+    A43 <- ifelse(data[,treat]==1, sigma21, sigma20)
+    A44 <- ifelse(data[,treat]==1, Rhoo11, Rhoo00)
+    
+    # Éviter les divisions par zéro ou les log de zéro/négatif
+    if (any(A42 <= 0) || any(A43 <= 0) || any(1-(A44)**2 <= 0)) {
+      return(1e10)
+    }
+    
+    Am1 <- (data[,mediators[1]]-A11)/A42
+    Am2 <- (data[,mediators[-1]]-A22)/A43
+    A40 <- (Am1)**2 + (Am2)**2 -2*A44*(Am1)*(Am2)
+    A41 <- A40/(1-(A44)**2)
+    
+    f.med <- -log(2*pi) - log(A42) - log(A43) - 0.5*log(1-(A44)^2) -0.5*A41
+  }
+  # Gérer les NaNs ou Inf résultant des calculs
+  if (any(!is.finite(f.med))) {
+    return(1e10)
+  }
+  return(-sum(f.med))
+}
+
+#### `estimate_mediator_params_optim`
+
+#' @title Estime les paramètres des modèles de médiateurs (méthode optimisée)
+#'
+#' @description
+#' Estime les coefficients et les paramètres de corrélation des modèles de médiateurs
+#' en minimisant la log-vraisemblance négative via `optim`.
+#'
+#' @param par Vecteur initial des paramètres pour l'optimisation.
+#' @param q1 Nombre de coefficients dans le modèle du premier médiateur.
+#' @param q2 Nombre de coefficients dans le modèle du second médiateur.
+#' @param treat Nom de la variable de traitement.
+#' @param mediators Vecteur de noms des variables médiatrices.
+#' @param formula_m1 Formule du modèle du premier médiateur.
+#' @param formula_m2 Formule du modèle du second médiateur.
+#' @param data Jeu de données.
+#' @param cor_structure Entier : 1 pour corrélation constante, 3 pour corrélation non constante.
+#'
+#' @return Une liste avec les coefficients estimés `Cint`, `Csed`, `Ccor`, et la hessienne `Chess`.
+#' @importFrom stats optim
+#' @keywords internal
+estimate_mediator_params_optim <- function(par, q1,q2, treat,mediators,formula_m1,formula_m2,
+                                           data = NULL, cor_structure= 1){
+  coef.intmed <- coef.sedmed <- NULL
+  coes <- NULL
+  par.med <- par
+  
+  if(cor_structure==1){
+    # Bornes : coefficients [-Inf, Inf], std dev [0, Inf], rho [-1, 1]
+    lower_bounds <- c(rep(-Inf, q1+q2), rep(1e-6,2), -0.99999) # std dev > 0 pour stabilité log
+    upper_bounds <- c(rep(Inf, q1+q2), rep(Inf,2), 0.99999)
+  }else{
+    # Bornes : coefficients [-Inf, Inf], std dev [0, Inf], rho [-1, 1]
+    lower_bounds <- c(rep(-Inf, q1+q2), rep(1e-6,4), rep(-0.99999,2))
+    upper_bounds <- c(rep(Inf, q1+q2), rep(Inf,4), rep(0.99999,2))
+  }
+  
+  # Contrôle pour optim: 'ndeps' doit avoir la même longueur que 'par'
+  # 'parscale' est utile pour aider l'optimisation mais peut être problématique si 0
+  # Une approche simple est de l'initialiser avec par.med et de s'assurer qu'aucun élément n'est zéro
+  parscale_val <- par.med
+  parscale_val[parscale_val == 0] <- 1 # Remplace les zéros par 1 pour éviter les problèmes
+  
+  coes <- optim(par = par.med, fn = Loglik.med, data = data, q1=q1, q2=q2,
+                treat = treat,mediators = mediators, formula_m1 =  formula_m1,
+                formula_m2 = formula_m2 , method = "L-BFGS-B",
+                lower= lower_bounds, upper= upper_bounds,
+                control = list(ndeps=rep(1e-4,length(par.med)), maxit=1e4, parscale = parscale_val),
+                hessian = TRUE
+  )
+  if (coes$convergence > 0L){
+    warning(paste("L'optimisation n'a pas convergé :", coes$message))
+  }
+  
+  coef.intmed <- as.vector(coes$par[1:q1])
+  coef.sedmed <- as.vector(coes$par[(q1+1):(q1+q2)])
+  cor_coef <- as.vector(coes$par[-c(1:(q1+q2))])
+  
+  return(list(Cint = coef.intmed, Csed=coef.sedmed, Ccor=cor_coef, Chess = coes$hessian))
+}
+
+
+#### `calculate_r01_r10`
+
+#' @title Calcule les corrélations r01 et r10
+#'
+#' @description
+#' Estime les corrélations croisées $r_{01}$ et $r_{10}$ entre les médiateurs
+#' sous différentes conditions d'exposition contrefactuelles.
+#'
+#' @param cor_params Numeric vector des paramètres de corrélation estimés
+#'   (écarts-types et corrélations brutes).
+#' @param cor_structure Entier : 1 (corrélation constante) ou 3 (corrélation non constante).
+#' @param rho_fixed Corrélation fixe à utiliser si `cor_structure = 3` et pas de solution valide.
+#'
+#' @return Une liste avec les vecteurs `r01`, `r10` et `rho_root_values` (pour `cor_structure = 3`).
+#' @keywords internal
+calculate_r01_r10 <- function(cor_params, cor_structure, rho_fixed = 0.5) {
+  r01_out <- NA
+  r10_out <- NA
+  rho_root_values_out <- NULL
+  
+  if (cor_structure == 3) {
+    # Paramètres pour le cas cor_structure = 3
+    # cor_params dans varcovarEstimes (s11,s10,s21,s20,rho11,rho00)
+    s11 <- cor_params[1] # sigma_M1_T1
+    s10 <- cor_params[2] # sigma_M1_T0
+    s21 <- cor_params[3] # sigma_M2_T1
+    s20 <- cor_params[4] # sigma_M2_T0
+    rho11 <- cor_params[5] # rho_M1M2_T1
+    rho00 <- cor_params[6] # rho_M1M2_T0
+    
+    # Calcul des termes de l'équation polynomiale du code original
+    Delta1_orig <- -( (s11 * s21 * rho11)^2 + (s10 * s20 * rho00)^2 ) +
+      (s11^2 - s10^2) * (s21^2 - s20^2)
+    Delt_orig <- (Delta1_orig)^2 - 4 * (s11 * s10 * s21 * s20 * rho11 * rho00)^2
+    
+    if (Delt_orig < 0 || is.na(Delt_orig)) {
+      # Si pas de solution réelle, utiliser la moyenne et la valeur fixe
+      r01_out <- c(NA, (rho11 + rho00) / 2, rho_fixed)
+      r10_out <- c(NA, (rho11 + rho00) / 2, rho_fixed)
+      warning("Pas de solution réelle pour les racines de rho. Les estimations r01/r10 des racines sont NA.")
+    } else {
+      # Solutions pour (r01)^2 basé sur le code original
+      # L'expression prod(cor_coefs[c(2, 3)])^2 est (s10 * s21)^2
+      denominator_val <- (s10 * s21)^2
+      if (denominator_val == 0) {
+        warning("Le dénominateur pour le calcul des racines de rho est zéro. Les estimations r01/r10 des racines sont NA.")
+        r01_out <- NA
+      } else {
+        potential_Delta3_val <- 0.5 * (-Delta1_orig + c(sqrt(Delt_orig), -sqrt(Delt_orig))) / denominator_val
+        potential_Delta3_val <- potential_Delta3_val[!is.na(potential_Delta3_val) & potential_Delta3_val >= 0]
+        
+        if (length(potential_Delta3_val) == 0) {
+          r01_solutions <- NA
+        } else {
+          r01_solutions <- c(sqrt(potential_Delta3_val), -sqrt(potential_Delta3_val))
+          # Filtrer pour r01 entre -1 et 1
+          r01_solutions <- r01_solutions[!is.na(r01_solutions) & abs(r01_solutions) <= 1]
+        }
+        
+        if (length(r01_solutions) == 0) {
+          r01_out <- NA
+          r10_out <- NA
+        } else {
+          r01_out <- r01_solutions
+          r10_out <- (rho11 * rho00) / r01_out
+          # Filtrer pour r10 entre -1 et 1
+          valid_indices <- which(!is.na(r10_out) & abs(r10_out) <= 1)
+          #r01_out <- r01_out[valid_indices]
+          #r10_out <- r10_out[valid_indices]
+        }
+      }
+    }
+    
+    # Ajout des valeurs 'moyen' et 'fixe' pour r01 et r10
+    # S'assurer que r01_out n'est pas NA avant de concaténer
+    #r01_final <- r01_out[!is.na(r01_out)]
+    #r10_final <- r10_out[!is.na(r10_out)]
+    
+    r01_final <- c(r01_out_filtered, (rho11 + rho00) / 2, rho_fixed)
+    r10_final <- c(r10_out_filtered, (rho11 + rho00) / 2, rho_fixed)
+    
+    # rho_root_values_out est utilisé pour le rapport final
+    # Il doit contenir les valeurs réelles de r01 issues de la racine (s'il y en a)
+    # puis la moyenne et la valeur fixe.
+    rho_root_values_out <- c(r01_out_filtered, mean(cor_params[5:6]), rho_fixed) # cor_params[5:6] sont rho11 et rho00
+    
+  } else { # cor_structure == 1
+    r01_final <- cor_params[3] # rho_M1M2
+    r10_final <- cor_params[3]
+  }
+  
+  return(list(r01 = r01_final, r10 = r10_final, rho_root_values = rho_root_values_out))
+}
+
+#### `calculate_conditional_effects`
+
+#' @title Calcule les effets directs et indirects conditionnels
+#'
+#' @description
+#' Calcule les effets direct (DE) et indirect (IE) conditionnels pour un traitement
+#' et un ensemble de médiateurs, en tenant compte des covariables et de l'interaction
+#' selon différents scénarios de corrélation.
+#'
+#' @param alpha List de `data.frame`s avec les coefficients alpha (pour chaque médiateur).
+#' @param beta Data.frame avec les coefficients beta du modèle de l'outcome.
+#' @param treat Nom de la variable traitement.
+#' @param mediators Vecteur de noms des médiateurs.
+#' @param intmed_cov Vecteur de noms des covariables du médiateur d'intérêt.
+#' @param sed_cov Vecteur de noms des covariables du second médiateur.
+#' @param inter Booléen, TRUE si interaction est prise en compte.
+#' @param cor_params_vec Vecteur numérique des coefficients de corrélation bruts.
+#' @param rho_values Vecteur numérique des valeurs de corrélation $r_{01}$ à considérer.
+#' @param data Data.frame contenant les variables utilisées dans les calculs.
+#' @param cor_structure Entier indiquant le type de corrélation (3 = non constante, 1 = constante).
+#'
+#' @return Liste contenant :
+#'   \item{DE_calculated}{Effets directs moyens calculés.}
+#'   \item{IE_calculated}{Effets indirects moyens calculés.}
+#' @keywords internal
+calculate_conditional_effects <- function(alpha, beta, treat, mediators, intmed_cov, sed_cov,
+                                          inter, cor_params_vec, rho_values, data, cor_structure) {
+  
+  # Extraire les coefficients alpha
+  # Médiateur 1
+  a01 <- alpha[[mediators[1]]]["(Intercept)", "value"]
+  a11 <- alpha[[mediators[1]]][treat, "value"]
+  a21_vals <- if (!is.null(intmed_cov)) alpha[[mediators[1]]][intmed_cov, "value"] else NULL
+  
+  # Médiateur 2
+  a02 <- alpha[[mediators[2]]]["(Intercept)", "value"]
+  a12 <- alpha[[mediators[2]]][treat, "value"]
+  a22_vals <- if (!is.null(sed_cov)) alpha[[mediators[2]]][sed_cov, "value"] else NULL
+  
+  # Extraire les coefficients beta
+  b0 <- beta["(Intercept)", "value"]
+  b1 <- beta[treat, "value"]
+  b21 <- beta[mediators[1], "value"]
+  b22 <- beta[mediators[2], "value"]
+  
+  # Extraire les coefficients d'interaction beta si 'inter' est TRUE
+  b_inter_terms <- setNames(rep(0, 4), c(paste0(treat, ":", mediators[1]),
+                                         paste0(treat, ":", mediators[2]),
+                                         paste0(mediators[1], ":", mediators[2]),
+                                         paste0(treat, ":", mediators[1], ":", mediators[2])))
+  if (inter) {
+    for (name in names(b_inter_terms)) {
+      if (name %in% rownames(beta)) {
+        b_inter_terms[name] <- beta[name, "value"]
+      }
+    }
+  }
+  
+  DE_k_list <- list()
+  IE_k_list <- list()
+  
+  for (k in seq_along(rho_values)) {
+    current_rho <- rho_values[k]
+    
+    # Termes qui peuvent dépendre des covariables
+    # Terme M1_0 (E[M1(0)|C])
+    term_m1_c0 <- a01
+    if (!is.null(intmed_cov) && !is.null(a21_vals)) {
+      term_m1_c0 <- term_m1_c0 + as.matrix(data[, intmed_cov]) %*% a21_vals
+    }
+    
+    # Terme M2_1 (E[M2(1)|C])
+    term_m2_c1 <- a02 + a12
+    if (!is.null(sed_cov) && !is.null(a22_vals)) {
+      term_m2_c1 <- term_m2_c1 + as.matrix(data[, sed_cov]) %*% a22_vals
+    }
+    
+    # Calcul des composantes de l'effet direct (DE)
+    if (cor_structure == 3) {
+      # cor_params_vec: (s11,s10,s21,s20,rho11,rho00)
+      s11 <- cor_params_vec[1]; s10 <- cor_params_vec[2]
+      s21 <- cor_params_vec[3]; s20 <- cor_params_vec[4]
+      rho11 <- cor_params_vec[5]; rho00 <- cor_params_vec[6]
+      
+      # Composantes du DE
+      termDE1 <- b1
+      termDE2 <- a12 * b22
+      termDE3 <- term_m1_c0 * b_inter_terms[paste0(treat, ":", mediators[1])]
+      termDE4 <- term_m2_c1 * b_inter_terms[paste0(treat, ":", mediators[2])]
+      
+      termDE5 <- (a12 * term_m1_c0 + s10 * s21 * current_rho - s10 * s20 * rho00) * b_inter_terms[paste0(mediators[1], ":", mediators[2])]
+      termDE6 <- (term_m1_c0 * term_m2_c1 + s10 * s21 * current_rho) * b_inter_terms[paste0(treat, ":", mediators[1], ":", mediators[2])]
+      
+      de_mean <- mean(termDE1 + termDE2 + termDE3 + termDE4 + termDE5 + termDE6, na.rm = TRUE)
+      
+      # Calcul des composantes de l'effet indirect (IE)
+      termIE1 <- a11 * (b21 + b_inter_terms[paste0(treat, ":", mediators[1])])
+      termIE2 <- (a11 * term_m2_c1 + s11 * s20 * rho11 - s10 * s21 * current_rho) * (b_inter_terms[paste0(mediators[1], ":", mediators[2])] + b_inter_terms[paste0(treat, ":", mediators[1], ":", mediators[2])])
+      
+      ie_mean <- mean(termIE1 + termIE2, na.rm = TRUE)
+      
+    } else { # cor_structure == 1
+      # cor_params_vec: (sigma1, sigma2, rho)
+      s1 <- cor_params_vec[1]; s2 <- cor_params_vec[2]
+      rho_val <- cor_params_vec[3] # C'est rho_M1M2, équivalent à current_rho dans ce cas
+      
+      # Composantes du DE
+      termDE1 <- b1
+      termDE2 <- a12 * b22
+      termDE3 <- term_m1_c0 * b_inter_terms[paste0(treat, ":", mediators[1])]
+      termDE4 <- term_m2_c1 * b_inter_terms[paste0(treat, ":", mediators[2])]
+      termDE5 <- (a12 * term_m1_c0) * b_inter_terms[paste0(mediators[1], ":", mediators[2])]
+      termDE6 <- (term_m1_c0 * term_m2_c1 + s1 * s2 * current_rho) * b_inter_terms[paste0(treat, ":", mediators[1], ":", mediators[2])]
+      
+      de_mean <- mean(termDE1 + termDE2 + termDE3 + termDE4 + termDE5 + termDE6, na.rm = TRUE)
+      
+      # Composantes de l'IE
+      termIE1 <- a11 * (b21 + b_inter_terms[paste0(treat, ":", mediators[1])])
+      termIE2 <- a11 * term_m2_c1 * (b_inter_terms[paste0(mediators[1], ":", mediators[2])] + b_inter_terms[paste0(treat, ":", mediators[1], ":", mediators[2])])
+      
+      ie_mean <- mean(termIE1 + termIE2, na.rm = TRUE)
+    }
+    
+    DE_k_list[[k]] <- de_mean
+    IE_k_list[[k]] <- ie_mean
+  }
+  
+  return(list(DE_calculated = unlist(DE_k_list), IE_calculated = unlist(IE_k_list)))
+}
