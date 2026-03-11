@@ -1,0 +1,29 @@
+
+DESCRIPTION DES PARAMÈTRES ET VARIABLES DE LA BASE DE DONNÉES `methylation.RData`
+
+
+1.  x : Variable d'Exposition (Traitement)
+    * Description: Représente le score total obtenu au questionnaire sur les traumatismes de l'enfance. C'est la variable de traitement dont l'effet sur la variable 'y' est analysé, potentiellement via les médiateurs d'expression génique ('M_raw' / 'M_log2').
+    * Type: Numérique (score).
+
+2.  y : Variable de Réponse (Outcome)
+    * Description: Mesure la réponse au stress par le cortisol, spécifiquement l'aire sous la courbe (AUC) par rapport à l'augmentation. C'est la variable de réponse ou d'issue de votre étude.
+    * Type: Numérique (valeur d'AUC).
+
+3.  S : Matrice des Covariables
+    * Description: Cette matrice contient les covariables utilisées pour ajuster les modèles statistiques, ce qui est essentiel pour contrôler les facteurs confondants. Elle inclut:
+        * 'intercept': Un terme constant pour les modèles de régression.
+        * 'age': L'âge des participants.
+        * 'sex': Le sexe des participants.
+        * 'bcell', 'CD4T', 'CD8T', 'monocytes', 'granu', 'NK': Proportions de différents types de cellules immunitaires. Ces proportions sont des covariables importantes car la composition cellulaire peut influencer l'expression génique et la réponse au stress.
+    * Type: Matrice numérique.
+
+4.  M_raw : Matrice des Variables Médiatrices Brutes
+
+    * Description: Il s'agit d'une matrice contenant les niveaux d'expression bruts (non transformés) pour diverses sondes ou gènes. Chaque colonne représente un gène/sonde, et chaque ligne correspond à un individu. Ce sont les médiateurs potentiels dans l'analyse.
+    * Type: Matrice numérique.
+
+5.  M_log2 : Matrice des Variables Médiatrices Transformées (Valeurs M)
+    * Source: Dérivée de 'M_raw' via la transformation log2(M_raw / (1 - M_raw)).
+    * Description: Ces sont les niveaux d'expression transformés en "M-values". Cette transformation est courante pour stabiliser la variance des données d'expression génique et les rendre plus aptes à l'analyse statistique paramétrique (par exemple, la régression linéaire), en améliorant leur normalité et la linéarité des relations.
+    * Type: Matrice numérique.
