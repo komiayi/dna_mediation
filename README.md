@@ -10,6 +10,16 @@
 
 Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une cause commune non mesurée, à un jeu de données réelles explorant la relation entre les traumatismes infantiles, la méthylation de l'ADN et la réactivité au stress cortisonique.
 
+## 📖 Référence académique
+
+Cette analyse est issue du mémoire de maîtrise :
+
+> Ayi, K. R. (2025). *Analyse de médiation causale pour des médiateurs non 
+> causalement liés* [Mémoire de maîtrise, UQAM]. https://archipel.uqam.ca/19950
+
+🔧 Une application R Shiny dédiée à ces méthodes est disponible : 
+[`komiayi/rbcm`](https://github.com/komiayi/rbcm).
+
 [![Document Complet](https://img.shields.io/badge/PDF-Document%20complet-red?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white)](https://github.com/komiayi/dna_mediation/blob/main/docs/document_final.pdf)
 
 ## Contexte Scientifique
