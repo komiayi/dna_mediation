@@ -10,7 +10,7 @@
 
 Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une cause commune non mesurée, à un jeu de données réelles explorant la relation entre les traumatismes infantiles, la méthylation de l'ADN et la réactivité au stress cortisonique.
 
-### 📄 [Document Complet](/docs/document_final.pdf)
+[![Document Complet](https://img.shields.io/badge/PDF-Document%20complet-red?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white)](https://github.com/komiayi/dna_mediation/blob/main/docs/document_final.pdf)
 
 ## Contexte Scientifique
 
