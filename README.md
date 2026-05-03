@@ -78,6 +78,8 @@ Les estimations de l'effet indirect restent relativement stables entre les méth
 **Pour consulter les tableaux de résultats complets et intermédiaires (Tableaux 4.2, 4.7 et 4.9), veuillez vous référer au dossier [results/](results/).**
 
 ***
+---
 
+*Auteur : [Komi Ayi](https://github.com/komiayi) — [Portfolio](https://komiayi.github.io) — [LinkedIn](https://www.linkedin.com/in/komi-ayi)*
 [^1]: Houtepen, L. C., Vinkers, C. H., Carrillo-Roa, T., Hiemstra, M., Van Lier, P. A., Meeus, W., Branje, S., Heim, C. M., Nemeroff, C. B., Mill, J. et al. (2016). Genome-wide DNA methylation levels and altered cortisol stress reactivity following childhood trauma in humans. Nature communications, 7(1), 10967.
 
