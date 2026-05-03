@@ -1,4 +1,7 @@
 # Application d'une méthode d'analyse de médiation avec cause commune non mesurée
+![R](https://img.shields.io/badge/R-4.x-276DC3?logo=r&logoColor=white)
+![Causal Inference](https://img.shields.io/badge/Causal%20Inference-academic-blue)
+![Biostatistics](https://img.shields.io/badge/Biostatistics-applied-green)
 
 Ce projet applique une méthode d'analyse de médiation statistique avancée, incluant la prise en compte d'une cause commune non mesurée, à un jeu de données réelles explorant la relation entre les traumatismes infantiles, la méthylation de l'ADN et la réactivité au stress cortisonique.
 
