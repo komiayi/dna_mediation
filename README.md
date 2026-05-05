@@ -14,11 +14,11 @@ Ce projet applique une méthode d'analyse de médiation statistique avancée, in
 
 Cette analyse est issue du mémoire de maîtrise :
 
-> Ayi, K. R. (2025). *Analyse de médiation causale pour des médiateurs non 
-> causalement liés* [Mémoire de maîtrise, UQAM]. https://archipel.uqam.ca/19950
+> Ayi, K. R. (2025). *Analyse de médiation causale pour des médiateurs non causalement liés* [Mémoire de maîtrise, UQAM]. https://archipel.uqam.ca/19950
 
-🔧 Une application R Shiny dédiée à ces méthodes est disponible : 
-[`komiayi/rbcm`](https://github.com/komiayi/rbcm).
+**Encadrement :** Pr. Karim Oualkacha (Département de mathématiques, UQAM) et Pr. Geneviève Lefebvre (biostatistique, UQAM).
+
+Une application R Shiny dédiée à ces méthodes est disponible : [`komiayi/rbcm`](https://github.com/komiayi/rbcm).
 
 [![Document Complet](https://img.shields.io/badge/PDF-Document%20complet-red?style=for-the-badge&logo=adobe-acrobat-reader&logoColor=white)](https://github.com/komiayi/dna_mediation/blob/main/docs/document_final.pdf)
 
