@@ -16,7 +16,7 @@ Cette analyse est issue du mémoire de maîtrise :
 
 > Ayi, K. R. (2025). *Analyse de médiation causale pour des médiateurs non causalement liés* [Mémoire de maîtrise, UQAM]. https://archipel.uqam.ca/19950
 
-**Encadrement :** Pr. Karim Oualkacha (Département de mathématiques, UQAM) et Pr. Geneviève Lefebvre (biostatistique, UQAM).
+**Encadrement :** Pr. Karim Oualkacha et Pr. Geneviève Lefebvre (Département de mathématiques, UQAM).
 
 Une application R Shiny dédiée à ces méthodes est disponible : [`komiayi/rbcm`](https://github.com/komiayi/rbcm).
 
